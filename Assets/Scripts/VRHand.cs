@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using OVR;
 
 public class VRHand : MonoBehaviour
 {
@@ -23,7 +24,7 @@ public class VRHand : MonoBehaviour
     public Transform gripOffset { get { return _gripOffset; } } //where grabbed things snap to (the grabbable has an offset too)
     [SerializeField]
     protected Transform _gripOffset; //where grabbed things snap to (the grabbable has an offset too)
-    
+
 
     //selection settings
     [SerializeField]
@@ -75,6 +76,11 @@ public class VRHand : MonoBehaviour
     [SerializeField]
     protected bool pressing = false;
 
+    //Menu UI
+    protected bool menuOpen = false;
+    [SerializeField]
+    protected GameObject MenuUI;
+
     //UI data
     [SerializeField]
     protected VRButton UIScript = null; //the button that is pointed at
@@ -82,6 +88,23 @@ public class VRHand : MonoBehaviour
     protected VRButton pressedButton = null; //the button that the press was initiated on
 
 
+    //movement
+    [SerializeField]
+    private Transform forward;
+    private Vector2 leftStickPos {get => OVRInput.Get(OVRInput.RawAxis2D.LThumbstick);}
+    private Vector2 rightStickPos { get => OVRInput.Get(OVRInput.RawAxis2D.RThumbstick); }
+    [SerializeField]
+    private float maxSpeed = 0.01f;
+    [SerializeField]
+    private float maxRotationSpeed = 2f;
+    [SerializeField]
+    private float speedMultiplier = 1.2f;
+    [SerializeField]
+    private Vector3 desiredVelocity = new Vector3(0f, 0f, 0f);
+    [SerializeField]
+    private float desiredRotationSpeed = 0f;
+    [SerializeField]
+    private CharacterController player;
 
     //User should be able to grab with both hands at all times.
     //Only one hand can select UI elements at any given time.
@@ -92,6 +115,8 @@ public class VRHand : MonoBehaviour
 
     private void Awake()
     {
+        //add menu button
+        controller.menuTap.AddListener(ToggleVRMenu);
         //setup UI selector trigger
         controller.triggerTap.AddListener(MakeSelector); //tell the controller to listen for selector queue
         //setup line renderer
@@ -132,10 +157,87 @@ public class VRHand : MonoBehaviour
             }
             Select(grabbables[0]);
         }
-        
+
+
+        UpdateMovement();
     }
 
     //function
+
+    public float Map(float x, float in_min, float in_max, float out_min, float out_max, bool clamp = true)
+    {
+        if (clamp) x = Mathf.Max(in_min, Mathf.Min(x, in_max));
+        return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+    }
+
+    void UpdateMovement()
+    {
+        Debug.Log("Left Stick Pos: "+leftStickPos);
+        //check if this controller is left or right hand
+        if (controller.controller == OVRInput.Controller.LTouch)
+        {
+            //Debug.Log("Hand is left hand");
+            //if left stick is not at 0,0 start to move the character
+            if (controller.thumbIsTouched &&  (leftStickPos.x >= 0f || leftStickPos.y >= 0f))
+            {
+                //map from stick pos to speed
+                float mappedX = Map(leftStickPos.x, -1f, 1f, -maxSpeed, maxSpeed);
+                float mappedY = Map(leftStickPos.y, -1f, 1f, -maxSpeed, maxSpeed);
+                //add current rotation to velocity
+                
+                desiredVelocity = new Vector3(mappedX, mappedY, 0f);// Vector2.Lerp(desiredVelocity, , 0.1f);
+            }
+            else
+            {
+                desiredVelocity = Vector2.Lerp(desiredVelocity, Vector2.zero, 0.2f);
+            }
+        }
+        else
+        {
+            desiredVelocity = Vector2.zero;
+        }
+        //check if this controller is right hand
+        if (controller.controller == OVRInput.Controller.RHand)
+        {
+            Debug.Log("Hand is right hand");
+            //if the right stick is not at 0,0 move the camera
+            if (rightStickPos.x >= 0f || rightStickPos.y >= 0f)
+            {
+
+            }
+            else
+            {
+
+            }
+        }
+        else
+        {
+
+        }
+
+        //set player velocity to desired velocity
+        Debug.Log("Desired velocity: "+desiredVelocity);
+        player.SimpleMove(desiredVelocity);
+        Debug.Log("Actual velocity: "+ player.velocity);
+    }
+
+    void ToggleVRMenu()
+    {
+        if (menuOpen)
+        {
+            //close menu
+            MenuUI.SetActive(false);
+            menuOpen = false;
+        }
+        else
+        {
+            //open menu
+            MenuUI.SetActive(true);
+            menuOpen = true;
+        }
+        Debug.Log("");
+    }
+    
     void MakeSelector() //handles everything related to switching this controller to selecting
     {
         Debug.Log("Make selector called!");
