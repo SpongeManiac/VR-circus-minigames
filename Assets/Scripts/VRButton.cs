@@ -23,9 +23,9 @@ public class VRButton : Selectable
         OnReleaseIn.AddListener(onBtnReleaseIn);
     }
 
-    protected override void onEnter()
+    protected override void onEnter(VRHand hand)
     {
-        base.onEnter();
+        base.onEnter(hand);
         foreach (Component c in colors)
         {
             colorizer.AddComponent(c);
@@ -38,9 +38,9 @@ public class VRButton : Selectable
         
     }
 
-    protected override void onExit()
+    protected override void onExit(VRHand hand)
     {
-        onDeselect();
+        onDeselect(hand);
         colorizer.paused = true;
         foreach (Component c in colors)
         {
@@ -59,9 +59,9 @@ public class VRButton : Selectable
         colorizer.RemoveComponent(c);
     }
 
-    protected override void onSelect()
+    protected override void onSelect(VRHand hand)
     {
-        base.onSelect();
+        base.onSelect(hand);
         Debug.Log("Button selected");
         animator.SetBool("ButtonPressed", true);
     }
@@ -72,7 +72,7 @@ public class VRButton : Selectable
         animator.SetBool("ButtonPressed", false);
     }
 
-    protected override void onDeselect()
+    protected override void onDeselect(VRHand hand)
     {
         Debug.Log("Button cancelled");
         animator.SetBool("ButtonPressed", false);

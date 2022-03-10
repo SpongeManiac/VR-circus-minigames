@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using OVR;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class VRHand : MonoBehaviour
 {
@@ -21,6 +23,8 @@ public class VRHand : MonoBehaviour
     protected GameObject finger;
     [SerializeField]
     protected GameObject fingerTip;
+    [SerializeField]
+    protected Camera fingerCam;
     public Transform gripOffset { get { return _gripOffset; } } //where grabbed things snap to (the grabbable has an offset too)
     [SerializeField]
     protected Transform _gripOffset; //where grabbed things snap to (the grabbable has an offset too)
@@ -86,7 +90,8 @@ public class VRHand : MonoBehaviour
     protected VRButton UIScript = null; //the button that is pointed at
     [SerializeField]
     protected VRButton pressedButton = null; //the button that the press was initiated on
-
+    [SerializeField]
+    protected GameObject cursor;
 
     //movement
     [SerializeField]
@@ -106,6 +111,11 @@ public class VRHand : MonoBehaviour
     [SerializeField]
     private CharacterController player;
 
+
+    [SerializeField]
+    protected GraphicRaycaster graphicCaster;
+    [SerializeField]
+    private EventSystem eventSystem;
     //User should be able to grab with both hands at all times.
     //Only one hand can select UI elements at any given time.
     //Selected UI elements are deselected if the hand is no longer a selector.
@@ -139,7 +149,7 @@ public class VRHand : MonoBehaviour
         {
             if (!grabbing)
             {
-                MakeLine();
+                CheckPointer();
             }
         }
         else
@@ -186,6 +196,7 @@ public class VRHand : MonoBehaviour
                 //add current rotation to velocity
                 
                 desiredVelocity = new Vector3(mappedX, mappedY, 0f);// Vector2.Lerp(desiredVelocity, , 0.1f);
+                player.SimpleMove(desiredVelocity);
             }
             else
             {
@@ -217,7 +228,7 @@ public class VRHand : MonoBehaviour
 
         //set player velocity to desired velocity
         Debug.Log("Desired velocity: "+desiredVelocity);
-        player.SimpleMove(desiredVelocity);
+        //player.SimpleMove(desiredVelocity);
         Debug.Log("Actual velocity: "+ player.velocity);
     }
 
@@ -265,7 +276,7 @@ public class VRHand : MonoBehaviour
         controller.triggerTap.AddListener(MakeSelector);
         if (pressing)
         {
-            UIScript.OnExit.Invoke(); //release the press as if it were cancelled
+            UIScript.OnExit.Invoke(this); //release the press as if it were cancelled
         }
         if (selecting && selectedScript.GetType() == typeof(VRButton))
         {
@@ -281,7 +292,7 @@ public class VRHand : MonoBehaviour
         }
         if (pressing)
         {
-            UIScript.OnExit.Invoke();
+            UIScript.OnExit.Invoke(this);
         }
     }
 
@@ -293,7 +304,7 @@ public class VRHand : MonoBehaviour
         Debug.Log("Selected script: "+selectedScript);
         selecting = true;
         TimedVibrate(0.01f, 0.01f, 0.1f);
-        script.OnEnter.Invoke();
+        script.OnEnter.Invoke(this);
         //set events based on type of selectable
         switch (script)
         {
@@ -316,7 +327,7 @@ public class VRHand : MonoBehaviour
         if (selecting)//ensure that something is selected first
         {
             selecting = false;
-            selectedScript.OnExit.Invoke();
+            selectedScript.OnExit.Invoke(this);
             switch (selectedScript)
             {
                 case VRButton btn:
@@ -331,7 +342,7 @@ public class VRHand : MonoBehaviour
         }
     }
 
-    void MakeLine()
+    void CheckPointer()
     {
         //get finger position and direction towards finger tip
         Vector3 p1 = finger.transform.position;
@@ -350,13 +361,22 @@ public class VRHand : MonoBehaviour
             lineRenderer.enabled = true;
             if (hit.collider.TryGetComponent<Selectable>(out var selectable))
             {
-                if(selectedScript != null) //if we are pointing at something new, deselect the old and select the new
+                Debug.Log("Pointing at : "+selectable.gameObject.name);
+                //we are pointing at a selectable
+                if(selectedScript != null) //if we have anything selected
                 {
                     if (selectable != selectedScript)
+                        // if what we are pointing at is new, deselect the old and select the new
                     {
                         Deselect();
                         switch (selectable)
                         {
+                            case HandUI ui:
+                                //create graphics raycast to this location
+                                //var graphicsRay = fingerCam;
+                                Select(selectable);
+                                //update cursor location
+                                break;
                             case VRButton btn:
                                 Select(selectable);
                                 break;
@@ -369,10 +389,13 @@ public class VRHand : MonoBehaviour
                         }
                     }
                 }
-                else //first thing to be selected
+                else //this is the first thing to be selected
                 {
                     switch (selectable)
                     {
+                        case HandUI ui:
+                            Select(selectable);
+                            break;
                         case VRButton btn:
                             Select(selectable);
                             break;
@@ -385,7 +408,7 @@ public class VRHand : MonoBehaviour
                     }
                 }
             }
-            else//no selectable
+            else//no selectable, deselect current if it exists
             {
                 if (selectedScript != null)
                 {
@@ -393,8 +416,9 @@ public class VRHand : MonoBehaviour
                 }
             }
         }
-        else //no UI
+        else //not pointing at anything interactable
         {
+            //deselect current if it exists
             if(selectedScript != null)
             {
                 Deselect();
@@ -403,12 +427,10 @@ public class VRHand : MonoBehaviour
             {
                 overUI = false;
             }
+            //disable line renderer
             lineRenderer.enabled = false;
-            
         }
     }
-
-    
 
     private void TimedVibrate(float frequency, float intensity, float time)
     {
@@ -483,11 +505,19 @@ public class VRHand : MonoBehaviour
     {
         if (overUI)
         {
-            UIScript = (VRButton)selectedScript;
-            pressedButton = UIScript;
-            controller.aPress.RemoveListener(Use);
-            selectedScript.OnSelect.Invoke();
-            controller.aPressOut.AddListener(Release);
+            switch (selectedScript)
+            {
+                case HandUI handUI:
+                    selectedScript.OnSelect.Invoke(this);
+                    break;
+                case VRButton button:
+                    UIScript = (VRButton)selectedScript;
+                    pressedButton = UIScript;
+                    controller.aPress.RemoveListener(Use);
+                    selectedScript.OnSelect.Invoke(this);
+                    controller.aPressOut.AddListener(Release);
+                    break;
+            }
         }
     }
 

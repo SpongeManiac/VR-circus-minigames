@@ -33,7 +33,7 @@ public class ShipSpawner : MonoBehaviour
     // Start is called before the first frame update
     void Start() { }
 
-    public void startGame()
+    public void startGame(VRHand hand)
     {
         Debug.Log("Starting game");
         pistol.OnSelect.RemoveListener(this.startGame);

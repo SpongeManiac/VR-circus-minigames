@@ -139,9 +139,9 @@ public class Grabbable : Selectable
     {
     }
 
-    protected override void onEnter()
+    protected override void onEnter(VRHand hand)
     {
-        base.onEnter();
+        base.onEnter(hand);
         if (rgb != null)
         {
             rgb.AddComponent(color);
@@ -151,7 +151,7 @@ public class Grabbable : Selectable
         
     }
 
-    protected override void onExit()
+    protected override void onExit(VRHand hand)
     {
         if (rgb != null)
         {
@@ -172,7 +172,7 @@ public class Grabbable : Selectable
 
     public virtual void GrabbedBy(VRHand hand)
     {
-        OnSelect.Invoke();
+        OnSelect.Invoke(hand);
         grabbedBy = hand;
         _grabbed = true;
         _grabbable = false;

@@ -5,10 +5,10 @@ using UnityEngine.Events;
 
 public class Selectable : MonoBehaviour
 {
-    public UnityEvent OnEnter = new UnityEvent();
-    public UnityEvent OnExit = new UnityEvent();
-    public UnityEvent OnSelect = new UnityEvent();
-    public UnityEvent OnDeselect = new UnityEvent();
+    public UnityEvent<VRHand> OnEnter = new UnityEvent<VRHand>();
+    public UnityEvent<VRHand> OnExit = new UnityEvent<VRHand> ();
+    public UnityEvent<VRHand> OnSelect = new UnityEvent<VRHand> ();
+    public UnityEvent<VRHand> OnDeselect = new UnityEvent<VRHand> ();
     [SerializeField]
     protected AudioPlayer player;
 
@@ -20,8 +20,24 @@ public class Selectable : MonoBehaviour
         OnDeselect.AddListener(onDeselect);
     }
 
-    protected virtual void onEnter(){ player.PlaySoundHit(0); }
-    protected virtual void onExit(){}
-    protected virtual void onSelect(){ player.PlaySoundHit(1); }
-    protected virtual void onDeselect(){}
+    protected virtual void onEnter(VRHand hand)
+    {
+
+    }
+
+    protected virtual void onExit(VRHand hand)
+    {
+    
+    }
+
+    protected virtual void onSelect(VRHand hand)
+    {
+    
+    }
+
+    protected virtual void onDeselect(VRHand hand)
+    {
+    
+    }
+
 }
