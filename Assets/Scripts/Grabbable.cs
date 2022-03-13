@@ -172,7 +172,7 @@ public class Grabbable : Selectable
 
     public virtual void GrabbedBy(VRHand hand)
     {
-        OnSelect.Invoke(hand);
+        OnSelectIn.Invoke(hand);
         grabbedBy = hand;
         _grabbed = true;
         _grabbable = false;

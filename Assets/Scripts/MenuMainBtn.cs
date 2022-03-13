@@ -5,10 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class MenuMainBtn : VRButton
 {
-    protected override void onBtnReleaseIn()
+    protected override void onSelectOut(VRHand hand)
     {
-        base.onBtnReleaseIn();
-
         SceneManager.LoadScene("Title");
     }
 }

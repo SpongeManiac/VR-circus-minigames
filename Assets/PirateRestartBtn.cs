@@ -5,9 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class PirateRestartBtn : VRButton
 {
-    protected override void onBtnReleaseIn()
+    protected override void onSelectOut(VRHand hand)
     {
-        base.onBtnReleaseIn();
         SceneManager.LoadScene("pirate");
     }
 }

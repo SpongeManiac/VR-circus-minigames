@@ -36,7 +36,7 @@ public class ShipSpawner : MonoBehaviour
     public void startGame(VRHand hand)
     {
         Debug.Log("Starting game");
-        pistol.OnSelect.RemoveListener(this.startGame);
+        pistol.OnSelectIn.RemoveListener(startGame);
         foreach (var track in tracks)
         {
             track.spawner = this;

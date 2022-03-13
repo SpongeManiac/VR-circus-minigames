@@ -5,8 +5,6 @@ using UnityEngine.Events;
 
 public class VRButton : Selectable
 {
-    //button events
-    public UnityEvent OnReleaseIn = new UnityEvent();
 
     [SerializeField]
     protected Animator animator;
@@ -15,13 +13,6 @@ public class VRButton : Selectable
     protected RGBDemo colorizer;
     [SerializeField]
     protected List<Component> colors = new List<Component>();//first component is the shader color
-    
-
-    protected override void Awake()
-    {
-        base.Awake();
-        OnReleaseIn.AddListener(onBtnReleaseIn);
-    }
 
     protected override void onEnter(VRHand hand)
     {
@@ -59,16 +50,15 @@ public class VRButton : Selectable
         colorizer.RemoveComponent(c);
     }
 
-    protected override void onSelect(VRHand hand)
+    protected override void onSelectIn(VRHand hand)
     {
-        base.onSelect(hand);
-        Debug.Log("Button selected");
+        Debug.Log("Button pressed");
         animator.SetBool("ButtonPressed", true);
     }
 
-    protected virtual void onBtnReleaseIn()
+    protected override void onSelectOut(VRHand hand)
     {
-        Debug.Log("Button used successfully");
+        Debug.Log("Button released");
         animator.SetBool("ButtonPressed", false);
     }
 

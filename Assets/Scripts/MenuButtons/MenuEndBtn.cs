@@ -5,9 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class MenuEndBtn : VRButton
 {
-    protected override void onBtnReleaseIn()
+    protected override void onSelectOut(VRHand hand)
     {
-        base.onBtnReleaseIn();
         SceneManager.LoadScene("End");
     }
 }

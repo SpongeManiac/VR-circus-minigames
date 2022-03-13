@@ -7,23 +7,60 @@ public class HandUIItem : HandUI
 {
     public Button btn;
 
+
     protected override void onEnter(VRHand hand)
     {
-        btn.image.color = btn.colors.highlightedColor;
+        if (isEnabled)
+        {
+            btn.image.color = btn.colors.highlightedColor;
+        }
     }
 
     protected override void onExit(VRHand hand)
     {
-        btn.image.color = btn.colors.normalColor;
+        if (isEnabled)
+        {
+            btn.image.color = btn.colors.normalColor;
+        }
     }
 
-    protected override void onSelect(VRHand hand)
+    protected override void onSelectIn(VRHand hand)
     {
-        btn.image.color = btn.colors.pressedColor;
+        if (isEnabled)
+        {
+            btn.image.color = btn.colors.pressedColor;
+        }
+    }
+    protected override void onSelectOut(VRHand hand)
+    {
+        if (isEnabled)
+        {
+            onEnter(hand);
+        }
     }
 
     protected override void onDeselect(VRHand hand)
     {
+        if (isEnabled)
+        {
+            btn.image.color = btn.colors.normalColor;
+        }
+    }
+
+    protected virtual void ToggleButton()
+    {
+        btn.enabled = !btn.enabled;
+    }
+    protected override void Enable()
+    {
+        base.Enable();
         btn.image.color = btn.colors.normalColor;
     }
+
+    protected override void Disable()
+    {
+        base.Disable();
+        btn.image.color = btn.colors.disabledColor;
+    }
+
 }

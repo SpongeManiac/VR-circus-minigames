@@ -48,3 +48,12 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: World
+    uniqueID: 2167464207
+    locked: 0
+  - name: HandUI
+    uniqueID: 1675561739
+    locked: 0
+  - name: UI
+    uniqueID: 1486749261
+    locked: 0

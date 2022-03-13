@@ -87,9 +87,9 @@ public class VRHand : MonoBehaviour
 
     //UI data
     [SerializeField]
-    protected VRButton UIScript = null; //the button that is pointed at
+    protected Selectable UIScript = null; //the button that is pointed at
     [SerializeField]
-    protected VRButton pressedButton = null; //the button that the press was initiated on
+    protected Selectable pressedButton = null; //the button that the press was initiated on
     [SerializeField]
     protected GameObject cursor;
 
@@ -308,6 +308,9 @@ public class VRHand : MonoBehaviour
         //set events based on type of selectable
         switch (script)
         {
+            case HandUI handUI:
+                controller.aPress.AddListener(Use);
+                break;
             case VRButton btn:
                 //add A listener
                 controller.aPress.AddListener(Use);
@@ -330,6 +333,9 @@ public class VRHand : MonoBehaviour
             selectedScript.OnExit.Invoke(this);
             switch (selectedScript)
             {
+                case HandUI handUI:
+                    controller.aPress.RemoveListener(Use);
+                    break;
                 case VRButton btn:
                     controller.aPressIn.RemoveListener(Use);
                     controller.aPressOut.RemoveListener(Release);
@@ -505,24 +511,16 @@ public class VRHand : MonoBehaviour
     {
         if (overUI)
         {
-            switch (selectedScript)
-            {
-                case HandUI handUI:
-                    selectedScript.OnSelect.Invoke(this);
-                    break;
-                case VRButton button:
-                    UIScript = (VRButton)selectedScript;
-                    pressedButton = UIScript;
-                    controller.aPress.RemoveListener(Use);
-                    selectedScript.OnSelect.Invoke(this);
-                    controller.aPressOut.AddListener(Release);
-                    break;
-            }
+            UIScript = selectedScript;
+            pressedButton = UIScript;
+            controller.aPress.RemoveListener(Use);
+            selectedScript.OnSelectIn.Invoke(this);
+            controller.aPressOut.AddListener(Release);
         }
     }
 
     void Release()
     {
-        UIScript.OnReleaseIn.Invoke();
+        UIScript.OnSelectOut.Invoke(this);
     }
 }

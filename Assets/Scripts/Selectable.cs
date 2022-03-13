@@ -7,16 +7,20 @@ public class Selectable : MonoBehaviour
 {
     public UnityEvent<VRHand> OnEnter = new UnityEvent<VRHand>();
     public UnityEvent<VRHand> OnExit = new UnityEvent<VRHand> ();
-    public UnityEvent<VRHand> OnSelect = new UnityEvent<VRHand> ();
+    public UnityEvent<VRHand> OnSelectIn = new UnityEvent<VRHand> ();
+    public UnityEvent<VRHand> OnSelectOut = new UnityEvent<VRHand> ();
     public UnityEvent<VRHand> OnDeselect = new UnityEvent<VRHand> ();
     [SerializeField]
-    protected AudioPlayer player;
+    protected GameObject player;
+    [SerializeField]
+    protected bool isEnabled = true;
 
     protected virtual void Awake()
     {
         OnEnter.AddListener(onEnter);
         OnExit.AddListener(onExit);
-        OnSelect.AddListener(onSelect);
+        OnSelectIn.AddListener(onSelectIn);
+        OnSelectOut.AddListener(onSelectOut);
         OnDeselect.AddListener(onDeselect);
     }
 
@@ -30,9 +34,14 @@ public class Selectable : MonoBehaviour
     
     }
 
-    protected virtual void onSelect(VRHand hand)
+    protected virtual void onSelectIn(VRHand hand)
     {
     
+    }
+
+    protected virtual void onSelectOut(VRHand hand)
+    {
+
     }
 
     protected virtual void onDeselect(VRHand hand)
@@ -40,4 +49,25 @@ public class Selectable : MonoBehaviour
     
     }
 
+    protected virtual void Toggle()
+    {
+        if (isEnabled)
+        {
+            Disable();
+        }
+        else
+        {
+            Enable();
+        }
+    }
+
+    protected virtual void Enable()
+    {
+        isEnabled = true;
+    }
+
+    protected virtual void Disable()
+    {
+        isEnabled = false;
+    }
 }

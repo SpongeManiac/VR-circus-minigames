@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class MenuSetBtn : VRButton
 {
-    protected override void onBtnReleaseIn()
+    protected override void onSelectOut(VRHand hand)
     {
-        base.onBtnReleaseIn();
     }
 }
