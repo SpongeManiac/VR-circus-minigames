@@ -37,10 +37,10 @@ public class VRController : MonoBehaviour
     public UnityEvent triggerPress = new UnityEvent();
     public UnityEvent triggerTap = new UnityEvent();
 
-    public bool triggetTIn { get { var touched = OVRInput.GetDown(OVRInput.Touch.PrimaryIndexTrigger, controller); if (touched) { Debug.Log("Trigger was touched this frame."); } return touched; } }
+    public bool triggerTIn { get { var touched = OVRInput.GetDown(OVRInput.Touch.PrimaryIndexTrigger, controller); if (touched) { Debug.Log("Trigger was touched this frame."); } return touched; } }
     public bool triggerTOut { get { var untouched = OVRInput.GetUp(OVRInput.Touch.PrimaryIndexTrigger, controller); if (untouched) { Debug.Log("Trigger was untouched this frame: " + untouched); } return untouched; } }
     public bool triggerIsTouched { get { var tf = OVRInput.Get(OVRInput.Touch.PrimaryIndexTrigger, controller); if (tf) { Debug.Log("Trigger is touched right now."); } return tf; } }
-    public bool triggerIn { get { var pressed = OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, controller); if (pressed) { Debug.Log("Trigger was pressed this frame."); }  return pressed; } }
+    public bool triggerIn { get { var pressed = OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, controller); if (pressed) { Debug.Log("Trigger was pressed this frame."); } return pressed; } }
     public bool triggerOut { get { var unpressed = OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger, controller); if (unpressed) { Debug.Log("Trigger was unpressed this frame."); } return unpressed; } }
     public bool triggerIsPressed { get { var tf = OVRInput.Get(OVRInput.Axis1D.PrimaryIndexTrigger, controller) > 0; if (tf) { Debug.Log("Trigger is pressed right now."); } return tf; } }
     [SerializeField]
@@ -162,7 +162,18 @@ public class VRController : MonoBehaviour
     public UnityEvent menuTap = new UnityEvent();
 
 
-    public bool menuIsPressed { get { var tf = OVRInput.Get(OVRInput.Button.Start, controller); if (tf) { Debug.Log("menu is pressed right now."); } return tf; } }
+    public bool menuIsPressed
+    {
+        get
+        {
+            var tf = OVRInput.Get(OVRInput.Button.Start, controller);
+            if (tf)
+            {
+                Debug.Log("menu is pressed right now.");
+            }
+            return tf;
+        }
+    }
     public bool menuIn { get { var pressed = OVRInput.GetDown(OVRInput.Button.Start, controller); if (pressed) { Debug.Log("Menu was pressed this frame."); } return pressed; } }
     public bool menuOut { get { var unpressed = OVRInput.GetUp(OVRInput.Button.Start, controller); if (unpressed) { Debug.Log("Menu was unpressed this frame."); } return unpressed; } }
     [SerializeField]
@@ -216,7 +227,7 @@ public class VRController : MonoBehaviour
         // Trigger
         if (triggerIsTouched) { triggerTouch.Invoke(); }
         if (triggerIsPressed) { triggerTime++; /*Debug.Log(triggerTime);*/ triggerPress.Invoke(); }
-        if (triggetTIn) { triggerTouchIn.Invoke(); }
+        if (triggerTIn) { triggerTouchIn.Invoke(); }
         if (triggerTOut) { triggerTouchOut.Invoke(); }
         if (triggerIn) { triggerPressIn.Invoke(); }
         if (triggerOut) { triggerPressOut.Invoke(); if (triggerTime <= triggerTapTime) { Debug.Log("Trigger tapped!"); triggerTap.Invoke(); } triggerTime = 0; }
@@ -228,7 +239,7 @@ public class VRController : MonoBehaviour
 
         // A Button
         if (aIsTouched) { aTouch.Invoke(); }
-        if (aIsPressed) { aTime++;  aPress.Invoke(); }
+        if (aIsPressed) { aTime++; aPress.Invoke(); }
         if (aTIn) { aTouchIn.Invoke(); }
         if (aTOut) { aTouchOut.Invoke(); }
         if (aIn) { aPressIn.Invoke(); }
@@ -236,7 +247,7 @@ public class VRController : MonoBehaviour
 
         //B Button
         if (bIsTouched) { bTouch.Invoke(); }
-        if (bIsPressed) { bTime++;  aPress.Invoke(); }
+        if (bIsPressed) { bTime++; aPress.Invoke(); }
         if (bTIn) { bTouchIn.Invoke(); }
         if (bTOut) { bTouchOut.Invoke(); }
         if (bIn) { bPressOut.Invoke(); }
@@ -254,9 +265,5 @@ public class VRController : MonoBehaviour
         if (thumbTOut) { thumbTouchOut.Invoke(); }
         if (thumbIn) { thumbPressOut.Invoke(); }
         if (thumbOut) { thumbPressOut.Invoke(); if (thumbTime <= thumbTapTime) { thumbPressOut.Invoke(); } thumbTime = 0; }
-        //thumbstick 
-        //if()
-    
-    
     }
 }
